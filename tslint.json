@@ -1,14 +1,21 @@
 {
   "defaultSeverity": "warning",
-  "extends": [
-    "tslint:recommended"
-  ],
+  "extends": ["tslint:recommended"],
   "rules": {
     "quotemark": [true, "single"],
-    "indent": [true, "spaces", 2],
+    "ter-indent": [
+      true,
+      4,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "indent": [true, "spaces", 4],
     "interface-name": false,
     "ordered-imports": false,
     "object-literal-sort-keys": false,
-    "no-consecutive-blank-lines": false
+    "no-consecutive-blank-lines": false,
+    "semicolon": [true, "always"],
+    "space-before-function-paren": false
   }
 }
