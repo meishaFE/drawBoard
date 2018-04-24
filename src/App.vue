@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-      <DrawBoard @init="handleInit"></DrawBoard>
+      <DrawBoard @save="handleSave"></DrawBoard>
   </div>
 </template>
 
@@ -18,13 +18,9 @@ import DrawBoard from './DrawBoard.vue';
         DrawBoard
     },
     methods: {
-        handleInit(): void {
+        handleSave(): void  {
             console.log(arguments);
         }
-    },
-    created() {
-        console.log(1);
-        console.log(DrawBoard);
     }
 })
 export default class App extends Vue {}

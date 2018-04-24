@@ -1,96 +1,104 @@
-import Raphael from 'raphael';
 import uuid from './uuid';
+import Raphael from 'raphael';
 import installExport from '../lib/raphael.export';
 import canvg from '../lib/canvg';
 
 installExport(Raphael);
 
 export default class Draw {
-    /* ::
-    drawBoard: ?Object
-    current: ?Object
-    drawTool: string
-    offset: Object
-    paths: any
-    trashPaths: Array<Array<Object>>
-    history: Array<{type: string, paths: Array<Object>}>
-    drawColor: string
-    _isStart: boolean
-    eraserOffset: {x: number, y: number}
-    createPath: Function
-    endPath: Function
-    drawPath: Function
-    startDraw: Function
-    isAIncludeB: Function
-    drawing: Function
-    endDraw: Function
-    path: Function
-    createEraser: Function
-    drawEraser: Function
-    endEraser: Function
-    restore: Function
-    getPathData: Function
-    setColor: Function
-    setDrawTool: Function
-    pushHistory: Function
-    toSVG: Function
-    undo: Function
-    toImage: Function
-    */
+    public drawBoard: RaphaelPaper;
+    public current: RaphaelPath | RaphaelElement | null = null;
+    public drawTool: 'pen' | 'eraser' = 'pen';
+    public paths: RaphaelSet;
+    public trashPaths: Array<Array<Object>> = [];
+    public history: Array<{
+        type: string;
+        paths: Array<RaphaelPath | RaphaelElement>;
+    }> = [];
+    public drawColor: string;
+    public eraserOffset: { x: number; y: number } = {
+        x: 0,
+        y: 0
+    };
 
-    constructor(el, { color }) {
+    private _el: HTMLElement;
+    private _offset?: ClientRect | DOMRect;
+    private _isStart: boolean = false;
+    private id: string;
+    private _historyPointer: number = 0;
+
+    constructor(el: HTMLElement, { color }: { color: string }) {
+        if (!el) {
+            throw TypeError('el is required and must be HTMLElement');
+        }
+
         const { width, height } = el.getBoundingClientRect();
-        const drawBoard = el ? Raphael(el, width, height) : null;
-        this._el = el;
+        const drawBoard = Raphael(el, width, height);
+
         this.drawBoard = drawBoard;
         this.id = `draw-${uuid()}`;
         this.paths = (drawBoard && drawBoard.set()) || [];
-        this.trashPaths = [];
-        this.history = [];
-        this._historyPointer = 0;
-        this._isStart = false;
-        this.current = null;
-        this.drawTool = 'pen'; // pen or eraser
+
+        this._el = el;
+
         this.drawColor = color;
-        this.eraserOffset = {
-            x: 0,
-            y: 0
-        };
     }
 
     // 绘画
-    startDraw(x, y, color) {
+    startDraw(x: number, y: number, color: string) {
         const offset = this._getOffset();
         const { top, left } = offset;
+        const drawTool = this.drawTool;
+
         this._offset = offset;
         this._isStart = true;
-        if (this.drawTool === 'pen') this.createPath(x - left, y - top, color);
-        else if (this.drawTool === 'eraser')
-            this.createEraser(x - left, y - top, color);
+
+        switch (drawTool) {
+            case 'pen':
+                this.createPath(x - left, y - top, color);
+                break;
+            case 'eraser':
+                this.createEraser(x - left, y - top, color);
+                break;
+            default:
+                break;
+        }
     }
 
-    drawing(x, y, color) {
-        if (!this._isStart) return;
+    drawing(x: number, y: number, color: string) {
+        if (!this._isStart || !this._offset) return;
         const { top, left } = this._offset;
-        if (this.drawTool === 'pen') this.drawPath(x - left, y - top, color);
-        else if (this.drawTool === 'eraser')
-            this.drawEraser(x - left, y - top, color);
+        const drawTool = this.drawTool;
+
+        switch (drawTool) {
+            case 'pen':
+                this.drawPath(x - left, y - top);
+                break;
+            case 'eraser':
+                this.drawEraser(x - left, y - top);
+                break;
+            default:
+                break;
+        }
     }
 
-    endDraw(x, y, color) {
+    endDraw(x: number, y: number, color: string) {
+        if (!this._isStart || !this._offset) return;
         this._isStart = false;
         const { top, left } = this._offset;
-        if (this.drawTool === 'pen') this.endPath(x - left, y - top, color);
-        else if (this.drawTool === 'eraser')
-            this.endEraser(x - left, y - top, color);
+        if (this.drawTool === 'pen') this.endPath(x - left, y - top);
+        else if (this.drawTool === 'eraser') this.endEraser(x - left, y - top);
     }
 
     // 绘制轨迹
-    createPath(x, y, color = this.drawColor) {
+    createPath(x: number, y: number, color = this.drawColor) {
         const drawBoard = this.drawBoard;
 
+        if (!drawBoard || !drawBoard.path) {
+            throw TypeError('drawBoard instance is not exit');
+        }
+
         if (this.drawTool !== 'pen') return;
-        if (!drawBoard || !drawBoard.path) return;
 
         const path = this.path(`M${x},${y}`, color);
         this.current = path;
@@ -98,9 +106,17 @@ export default class Draw {
         return path;
     }
 
-    path(path, color = this.drawColor) {
-        if (!path) return null;
-        if (!this.drawBoard) return null;
+    path(path: string, color: string = this.drawColor) {
+        if (!path) {
+            throw TypeError('path is required');
+        }
+
+        const drawBoard = this.drawBoard;
+
+        if (!drawBoard || !drawBoard.path) {
+            throw TypeError('drawBoard instance is not exit');
+        }
+
         return this.drawBoard.path(path).attr({
             stroke: color,
             'stroke-width': 2,
@@ -109,27 +125,35 @@ export default class Draw {
         });
     }
 
-    endPath(x, y) {
+    endPath(x: number, y: number) {
         const path = this.drawPath(x, y);
         this.pushHistory('path', [path]);
         return path;
     }
 
-    drawPath(x, y) {
+    drawPath(x: number, y: number) {
         const path = this.current;
-        if (!path || !path.attr) return;
+
+        if (!path || !path.attr) {
+            throw TypeError('path is not exit');
+        }
+
         path.attr({ path: `${path.attr('path').toString()}L${x},${y}` });
         return path;
     }
 
     // 绘制橡皮擦
-    createEraser(x, y, color = '#ff0000') {
+    createEraser(x: number, y: number, color: string = '#ff0000') {
         const drawBoard = this.drawBoard;
 
-        if (this.drawTool !== 'eraser') return;
-        if (!drawBoard || !drawBoard.rect) return;
+        if (!drawBoard || !drawBoard.rect) {
+            throw TypeError('drawBoard instance is not exit');
+        }
 
-        const eraser = drawBoard && drawBoard.rect(x, y, 0, 0);
+        if (this.drawTool !== 'eraser') return;
+
+        const eraser = drawBoard.rect(x, y, 0, 0);
+
         eraser.attr({
             r: 0,
             rx: 0,
@@ -139,18 +163,30 @@ export default class Draw {
             'fill-opacity': '0.15',
             'stroke-opacity': '0.5'
         });
+
         this.current = eraser;
-        this.eraserOffset = eraser && eraser.attr(['x', 'y']);
+
+        this.eraserOffset = {
+            x: eraser.attr('x'),
+            y: eraser.attr('y')
+        };
+
         return eraser;
     }
 
-    drawEraser(x, y) {
+    drawEraser(x: number, y: number) {
         const eraser = this.current;
 
         if (!eraser || !eraser.attr) return;
 
-        const { x: startX, y: startY } = this.eraserOffset || {};
-        const wantSetOpts = {};
+        const { x: startX = 0, y: startY = 0 } = this.eraserOffset || {};
+
+        const wantSetOpts: {
+            x?: number;
+            y?: number;
+            width?: number;
+            height?: number;
+        } = {};
 
         if (x < startX) {
             wantSetOpts.x = x;
@@ -165,29 +201,34 @@ export default class Draw {
         } else {
             wantSetOpts.height = y - startY;
         }
+
         eraser.attr(wantSetOpts);
         return eraser;
     }
 
-    // eslint-disable-next-line
-    endEraser(x, y) {
+    endEraser(x: number, y: number) {
         const eraser = this.current;
-        if (!eraser) return;
+
+        if (!eraser) {
+            throw TypeError('eraser is not exit');
+        }
+
         const trashPaths = this._clearSelectPaths(eraser.getBBox(), this.paths);
+
         trashPaths &&
             trashPaths.length &&
             this.pushHistory('eraser', trashPaths);
         eraser.remove();
     }
 
-    restore(str, color = this.drawColor, canEdit = false) {
+    restore(str: string, color: string = this.drawColor, canEdit = false) {
         const path = this.path(str, color);
-        if (!path) return false;
+        if (!path) return;
+
         if (canEdit) {
             this.paths.push(path);
             this.pushHistory('path', [path]);
         }
-        return path;
     }
 
     clear() {
@@ -200,24 +241,31 @@ export default class Draw {
     // 获取 paths 的数据
     getPathData() {
         const _path = Array.from(this.paths);
-        if (!_path || !_path.length) return [];
-        return _path.map(p => ({
+        let result: Array<{ color: string; path: string }> = [];
+        if (!_path || !_path.length) return result;
+
+        result = _path.map(p => ({
             color: p.attr('stroke'),
             path: p.attr('path').toString()
         }));
+
+        return result;
     }
 
-    setColor(color) {
+    setColor(color: string) {
         this.drawColor = color;
         return color;
     }
 
-    setDrawTool(tool) {
+    setDrawTool(tool: 'pen' | 'eraser') {
         this.drawTool = tool;
         return tool;
     }
 
-    pushHistory(type, paths) {
+    pushHistory(
+        type: 'path' | 'eraser',
+        paths: Array<RaphaelPath | RaphaelElement>
+    ) {
         this._historyPointer = this.history.push({ type, paths });
         return this.history;
     }
@@ -243,7 +291,7 @@ export default class Draw {
     }
 
     // 撤销上一步操作
-    undo() {
+    undo(history = 1) {
         if (!this.history.length) return;
         const work = this.backHistory();
         if (!work) return;
@@ -254,14 +302,14 @@ export default class Draw {
         }
     }
 
-    _undoPath(paths) {
+    _undoPath(paths: Array<RaphaelPath | RaphaelElement>) {
         paths.forEach(path => {
             path && path.hide && path.hide();
             this.paths.exclude(path);
         });
     }
 
-    _undoEraser(paths) {
+    _undoEraser(paths: Array<RaphaelPath | RaphaelElement>) {
         paths.forEach(path => {
             path && path.show && path.show();
             this.paths.push(path);
@@ -269,10 +317,11 @@ export default class Draw {
     }
 
     // 清除橡皮擦选中的轨迹
-    _clearSelectPaths(eraserBox, paths) {
+    _clearSelectPaths(eraserBox: BoundingBox, paths: RaphaelSet) {
         if (!paths || !paths.length) return;
         const _paths = Array.from(paths);
-        const trashs = [];
+        const trashs: Array<RaphaelPath | RaphaelElement> = [];
+
         _paths.forEach(path => {
             if (!path) return;
             const pathBox = path.getBBox();
@@ -286,27 +335,29 @@ export default class Draw {
     }
 
     // 判断 A 区域和 B 区域是否有交集
-    _isAIncludeB(boxA, boxB) {
+    _isAIncludeB(boxA: BoundingBox, boxB: BoundingBox) {
         if (!boxA || !boxB) return false;
         const [maxX, , , minX] = [
             boxA.x,
             boxA.x + boxA.width,
             boxB.x,
             boxB.x + boxB.width
-        ].sort((a, b) => a < b);
+        ].sort((a, b) => b - a);
+
         const [maxY, , , minY] = [
             boxA.y,
             boxA.y + boxA.height,
             boxB.y,
             boxB.y + boxB.height
-        ].sort((a, b) => a < b);
+        ].sort((a, b) => b - a);
+
         const width = boxA.width + boxB.width;
         const height = boxA.height + boxB.height;
-        if (maxX - minX <= width && maxY - minY <= height) return true;
-        return false;
+
+        return maxX - minX <= width && maxY - minY <= height;
     }
 
-    _getOffset() {
+    _getOffset(): ClientRect | DOMRect {
         const el = this._el;
         return el.getBoundingClientRect();
     }

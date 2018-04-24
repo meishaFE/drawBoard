@@ -1,13 +1,16 @@
 {
   "name": "msdrawboard",
   "version": "0.1.0",
-  "private": true,
+  "description": "vue.js draw-board component base on raphael",
   "scripts": {
     "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
     "test": "vue-cli-service test",
     "lint": "vue-cli-service lint"
   },
+  "main": "src/index.js",
+  "license": "MIT",
+  "author": "Jayden <jxdjayden@gmail.com>",
   "dependencies": {
     "@types/raphael": "^2.1.30",
     "raphael": "^2.2.7",

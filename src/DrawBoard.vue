@@ -164,7 +164,7 @@
 </template>
 
 <script>
-import Draw from '@/utils/draw.js';
+import Draw from '@/utils/draw.ts';
 import $type from '@/utils/type';
 
 let drawBoard;
@@ -176,7 +176,7 @@ const handleMouseUp = event => {
 };
 
 export default {
-    name: 'DrawBoard',
+    name: 'MsDrawBoard',
     props: {
         restoreDisablePath: {
             type: Array,
