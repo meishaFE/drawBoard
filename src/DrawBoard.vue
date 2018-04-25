@@ -1,16 +1,17 @@
 <template>
-    <div class="draw"
-         ref="drawContainer">
+    <div class="ms-draw"
+         ref="drawContainer"
+         :style="{'background': background}">
         <div v-if="!readonly"
-             class="draw-control-container">
+             class="ms-draw__control__container">
             <div v-show="isShowAllTool"
-                 class="draw-control-content">
+                 class="ms-draw__control__content">
                 <div @click.prevent.stop="undo"
-                     class="control-button control-button-back">
+                     class="ms-draw__control__button is-back">
                     <img src="./assets/images/icon_tool_back.png">
                 </div>
                 <div @click.prevent.stop="useEraser"
-                     class="control-button control-button-eraser">
+                     class="ms-draw__control__button is-eraser">
                     <svg width="20px"
                          height="19px"
                          viewBox="0 0 20 19"
@@ -48,7 +49,7 @@
                      :key="`color-${index}`"
                      :style="{backgroundColor: color}"
                      @click.prevent.stop="selectColor(color)"
-                     class="control-button control-button-color">
+                     class="ms-draw__control__button is-color">
                     <svg focusable="false"
                          width="10"
                          height="10"
@@ -59,7 +60,7 @@
                     </svg>
                 </div>
             </div>
-            <div class="control-button control-button-toggle"
+            <div class="ms-draw__control__button is-toggle"
                  @click.prevent.stop="toggleShowAllTool">
                 <svg width="34px"
                      height="34px"
@@ -148,18 +149,18 @@
                 </svg>
             </div>
         </div>
-        <div id="draw-board"
+        <div :id="id"
              ref="drawBoardContainer"
-             class="draw-board"
+             class="ms-draw__core"
              @mousedown="startDraw"
              @mousemove="painting">
         </div>
         <button v-if="!readonly"
-                   class="draw-save-button"
-                   type="primary"
-                   :disabled="isBtnDisabled"
-                   :loading="isBtnLoading"
-                   @click="save">Save</button>
+                class="ms-draw__save-button"
+                type="primary"
+                :disabled="isBtnDisabled"
+                :loading="isBtnLoading"
+                @click="save">Save</button>
     </div>
 </template>
 
@@ -178,6 +179,10 @@ const handleMouseUp = event => {
 export default {
     name: 'MsDrawBoard',
     props: {
+        background: {
+            type: String,
+            default: '#fff'
+        },
         restoreDisablePath: {
             type: Array,
             default() {
@@ -232,7 +237,8 @@ export default {
             currentPath: null,
             isShowAllTool: false,
             currentDrawTool: 'pen',
-            currentColor: '#21242C'
+            currentColor: '#21242C',
+            id: 'ms-draw-board'
         };
     },
     mounted() {
@@ -243,7 +249,7 @@ export default {
     },
     methods: {
         init() {
-            const el = this.$refs.drawBoardContainer || document.getElementById('draw-board');
+            const el = this.$refs.drawBoardContainer || document.getElementById(this.id);
             const opts = { color: this.currentColor };
             drawBoard = new Draw(el, opts);
             this.restoreAllPath();
@@ -326,9 +332,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.draw {
+.ms-draw {
     position: relative;
 
+    box-sizing: border-box;
     width: 100%;
     max-width: 1024px;
     height: 100%;
@@ -336,11 +343,132 @@ export default {
     &::-webkit-scrollbar {
         display: none;
     }
+
+    &__control {
+        &__container {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+
+            display: flex;
+            overflow-y: auto;
+            align-items: center;
+            flex-direction: column;
+            justify-content: flex-end;
+
+            box-sizing: border-box;
+            min-height: 400px;
+            margin-left: 30px;
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+        &__content {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+
+            box-sizing: border-box;
+        }
+        &__button {
+            position: relative;
+            z-index: 2;
+
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            justify-content: center;
+
+            box-sizing: border-box;
+            width: 20px;
+            height: 20px;
+            margin-top: 12px;
+
+            cursor: pointer;
+            user-select: none;
+
+            border-radius: 50%;
+
+            &.is-color {
+                padding-bottom: 2px;
+            }
+
+            &.is-toggle {
+                margin-top: 20px;
+                &,
+                img {
+                    width: 32px;
+                    height: 32px;
+                }
+            }
+
+            &.is-eraser {
+                &,
+                img {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            &.is-back {
+                &,
+                img {
+                    width: 18px;
+                    height: 16px;
+                }
+            }
+        }
+    }
+
+    &__core {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 430px;
+    }
+    &__save-button {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+
+    position: absolute;
+    right: 0;
+    bottom: 30px;
+
+    display: inline-block;
+
+    box-sizing: border-box;
+    margin: 0;
+    padding: 12px 20px;
+
+    cursor: pointer;
+    user-select: none;
+    transition: 0.1s;
+    text-align: center;
+    white-space: nowrap;
+
+    color: #fff;
+    border: 1px solid #409eff;
+    border-radius: 4px;
+    outline: none;
+    background: #409eff;
+
+    -webkit-appearance: none;
+    &:hover {
+        color: #fff;
+        border-color: #66b1ff;
+        background: #66b1ff;
+    }
+    &:active {
+        color: #fff;
+        border-color: #3a8ee6;
+        background: #3a8ee6;
+    }
+    }
 }
 
 .draw-control-container {
     position: absolute;
-    bottom: 30px;
+    bottom: 20px;
     left: 0;
 
     display: flex;
@@ -349,9 +477,10 @@ export default {
     flex-direction: column;
     justify-content: flex-end;
 
+    box-sizing: border-box;
     min-height: 400px;
-    max-height: 90%;
     margin-left: 30px;
+
     &::-webkit-scrollbar {
         display: none;
     }
@@ -359,6 +488,8 @@ export default {
         display: flex;
         align-items: center;
         flex-direction: column;
+
+        box-sizing: border-box;
     }
     .control-button {
         position: relative;
@@ -366,8 +497,10 @@ export default {
 
         display: flex;
         align-items: center;
+        flex-shrink: 0;
         justify-content: center;
 
+        box-sizing: border-box;
         width: 20px;
         height: 20px;
         margin-top: 12px;
@@ -404,20 +537,6 @@ export default {
             }
         }
     }
-}
-
-.draw-save-button {
-    position: absolute;
-    right: 0;
-    bottom: 30px;
-
-    width: 120px;
-    height: 40px;
-}
-
-.draw-board {
-    width: 100%;
-    height: 100%;
 }
 </style>
 
