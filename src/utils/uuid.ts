@@ -8,8 +8,9 @@ export default (): string => {
         if (i === 8 || i === 12 || i === 16 || i === 20) {
             uuid += '-';
         }
+        // tslint-disable-next-line
         uuid += (i === 12 ? 4 : i === 16 ? (random & 3) | 8 : random).toString(
-            16
+            16,
         );
     }
 

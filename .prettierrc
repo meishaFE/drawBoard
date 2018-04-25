@@ -2,5 +2,6 @@
     "tabWidth": 4,
     "semi": true,
     "singleQuote": true,
-    "parser": "typescript"
+    "parser": "typescript",
+    "printWidth": 80
 }

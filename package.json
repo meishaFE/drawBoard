@@ -1,13 +1,13 @@
 {
   "name": "msdrawboard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "vue.js draw-board component base on raphael",
   "scripts": {
     "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build --target wc --name 'ms-draw-board' 'src/DrawBoard.vue'",
     "test": "vue-cli-service test",
     "lint": "vue-cli-service lint",
-    "prepublishOnly": "yarn lint && yarn build"
+    "prepublishOnly": "yarn build"
   },
   "main": "dist/ms-draw-board.min.js",
   "license": "MIT",

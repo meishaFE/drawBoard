@@ -3,13 +3,6 @@
   "extends": ["tslint:recommended"],
   "rules": {
     "quotemark": [true, "single"],
-    "ter-indent": [
-      true,
-      4,
-      {
-        "SwitchCase": 1
-      }
-    ],
     "indent": [true, "spaces", 4],
     "interface-name": false,
     "ordered-imports": false,

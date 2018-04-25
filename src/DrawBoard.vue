@@ -165,12 +165,179 @@
 </template>
 
 <script>
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 import Draw from '@/utils/draw.ts';
 import $type from '@/utils/type';
 
 let drawBoard;
 
-const handleMouseUp = event => {
+const handleMouseUp = (event) => {
     const { pageX: x, pageY: y } = event;
     drawBoard.endDraw(x, y);
     window.removeEventListener('mouseup', handleMouseUp);
@@ -181,56 +348,66 @@ export default {
     props: {
         background: {
             type: String,
-            default: '#fff'
+            default: '#fff',
         },
         restoreDisablePath: {
             type: Array,
             default() {
                 return [];
-            }
+            },
         },
         restorePath: {
             type: Array,
             default() {
                 return [];
-            }
+            },
         },
         defaultColor: {
             type: String,
             default() {
                 return '#21242C';
-            }
+            },
         },
         readonly: {
             type: Boolean,
             default() {
                 return false;
-            }
+            },
         },
         ifRunClear: {
             type: Boolean,
             default() {
                 return false;
-            }
+            },
         },
         isBtnLoading: {
             type: Boolean,
             default() {
                 return false;
-            }
+            },
         },
         isBtnDisabled: {
             type: Boolean,
             default() {
                 return false;
-            }
+            },
         },
         penColors: {
             type: Array,
             default() {
-                return ['#01A995', '#E84D39', '#74CF70', '#FFBE26', '#CA337C', '#7853AB', '#11ACCD', '#20A0FF', '#21242C'];
-            }
-        }
+                return [
+                    '#01A995',
+                    '#E84D39',
+                    '#74CF70',
+                    '#FFBE26',
+                    '#CA337C',
+                    '#7853AB',
+                    '#11ACCD',
+                    '#20A0FF',
+                    '#21242C',
+                ];
+            },
+        },
     },
     data() {
         return {
@@ -238,7 +415,7 @@ export default {
             isShowAllTool: false,
             currentDrawTool: 'pen',
             currentColor: '#21242C',
-            id: 'ms-draw-board'
+            id: 'ms-draw-board',
         };
     },
     mounted() {
@@ -249,7 +426,9 @@ export default {
     },
     methods: {
         init() {
-            const el = this.$refs.drawBoardContainer || document.getElementById(this.id);
+            const el =
+                this.$refs.drawBoardContainer ||
+                document.getElementById(this.id);
             const opts = { color: this.currentColor };
             drawBoard = new Draw(el, opts);
             this.restoreAllPath();
@@ -258,12 +437,27 @@ export default {
         restoreAllPath() {
             drawBoard.clear();
             const restorePath = this.restorePath;
-            const restoreDisablePath = this.restoreDisablePath.map(path => ({ ...path, editDisabled: true }));
-            if (restorePath && $type.isArray(restorePath) && restorePath.length) this.restore(restorePath);
-            if (restoreDisablePath && $type.isArray(restoreDisablePath) && restoreDisablePath.length) this.restore(restoreDisablePath);
+            const restoreDisablePath = this.restoreDisablePath.map((path) => ({
+                ...path,
+                editDisabled: true,
+            }));
+            if (
+                restorePath &&
+                $type.isArray(restorePath) &&
+                restorePath.length
+            ) {
+                this.restore(restorePath);
+            }
+            if (
+                restoreDisablePath &&
+                $type.isArray(restoreDisablePath) &&
+                restoreDisablePath.length
+            ) {
+                this.restore(restoreDisablePath);
+            }
         },
         restore(data) {
-            data.forEach(data => {
+            data.forEach((data) => {
                 drawBoard.restore(data.path, data.color, !data.editDisabled);
             });
         },
@@ -307,17 +501,26 @@ export default {
             const image = drawBoard.toImage();
             const paths = drawBoard.getPathData();
             this.$emit('save', image, paths);
-        }
+        },
     },
     watch: {
         restorePath(val, oldVal) {
-            if (!drawBoard) return;
-            if (val && val !== oldVal && $type.isArray(val)) this.restore(val);
+            if (!drawBoard) {
+                return;
+            }
+            if (val && val !== oldVal && $type.isArray(val)) {
+                this.restore(val);
+            }
         },
         restoreDisablePath(val, oldVal) {
-            if (!drawBoard) return;
+            if (!drawBoard) {
+                return;
+            }
             if (val && val !== oldVal && $type.isArray(val)) {
-                const restoreDisablePath = val.map(path => ({ ...path, editDisabled: true }));
+                const restoreDisablePath = val.map((path) => ({
+                    ...path,
+                    editDisabled: true,
+                }));
                 this.restore(restoreDisablePath);
             }
         },
@@ -326,8 +529,8 @@ export default {
                 drawBoard.clear();
                 this.$emit('clear');
             }
-        }
-    }
+        },
+    },
 };
 </script>
 
@@ -420,49 +623,49 @@ export default {
     }
 
     &__core {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    min-height: 430px;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        min-height: 430px;
     }
     &__save-button {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1;
 
-    position: absolute;
-    right: 0;
-    bottom: 30px;
+        position: absolute;
+        right: 0;
+        bottom: 30px;
 
-    display: inline-block;
+        display: inline-block;
 
-    box-sizing: border-box;
-    margin: 0;
-    padding: 12px 20px;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 12px 20px;
 
-    cursor: pointer;
-    user-select: none;
-    transition: 0.1s;
-    text-align: center;
-    white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+        transition: 0.1s;
+        text-align: center;
+        white-space: nowrap;
 
-    color: #fff;
-    border: 1px solid #409eff;
-    border-radius: 4px;
-    outline: none;
-    background: #409eff;
-
-    -webkit-appearance: none;
-    &:hover {
         color: #fff;
-        border-color: #66b1ff;
-        background: #66b1ff;
-    }
-    &:active {
-        color: #fff;
-        border-color: #3a8ee6;
-        background: #3a8ee6;
-    }
+        border: 1px solid #409eff;
+        border-radius: 4px;
+        outline: none;
+        background: #409eff;
+
+        -webkit-appearance: none;
+        &:hover {
+            color: #fff;
+            border-color: #66b1ff;
+            background: #66b1ff;
+        }
+        &:active {
+            color: #fff;
+            border-color: #3a8ee6;
+            background: #3a8ee6;
+        }
     }
 }
 

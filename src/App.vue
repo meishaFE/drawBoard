@@ -11,17 +11,16 @@ import DrawBoard from './DrawBoard.vue';
 @Component({
     data() {
         return {
-            isInitDrawBoard: true
+            isInitDrawBoard: true,
         };
     },
     components: {
-        DrawBoard
+        DrawBoard,
     },
     methods: {
         handleSave(): void  {
-            console.log(arguments);
-        }
-    }
+        },
+    },
 })
 export default class App extends Vue {}
 </script>

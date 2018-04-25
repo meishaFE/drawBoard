@@ -295,7 +295,7 @@ var mul_table = [
     265,
     263,
     261,
-    259
+    259,
 ];
 
 var shg_table = [
@@ -553,7 +553,7 @@ var shg_table = [
     24,
     24,
     24,
-    24
+    24,
 ];
 
 function premultiplyAlpha(imageData) {
@@ -590,27 +590,26 @@ function stackBlurImage(imageID, canvasID, radius, blurAlphaChannel) {
 
     var canvas = document.getElementById(canvasID);
 
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
     canvas.width = w;
     canvas.height = h;
 
-    var context = canvas.getContext('2d');
+    var context = canvas.getContext("2d");
     context.clearRect(0, 0, w, h);
     context.drawImage(img, 0, 0);
 
-    if (isNaN(radius) || radius < 1) return;
+    if (isNaN(radius) || radius < 1) { return; }
 
-    if (blurAlphaChannel) stackBlurCanvasRGBA(canvasID, 0, 0, w, h, radius);
-    else stackBlurCanvasRGB(canvasID, 0, 0, w, h, radius);
+    if (blurAlphaChannel) { stackBlurCanvasRGBA(canvasID, 0, 0, w, h, radius); } else { stackBlurCanvasRGB(canvasID, 0, 0, w, h, radius); }
 }
 
 function stackBlurCanvasRGBA(id, top_x, top_y, width, height, radius) {
-    if (isNaN(radius) || radius < 1) return;
+    if (isNaN(radius) || radius < 1) { return; }
     radius |= 0;
 
     var canvas = document.getElementById(id);
-    var context = canvas.getContext('2d');
+    var context = canvas.getContext("2d");
     var imageData;
 
     try {
@@ -622,18 +621,18 @@ function stackBlurCanvasRGBA(id, top_x, top_y, width, height, radius) {
             // imageData = context.getImageData( top_x, top_y, width, height );
             try {
                 netscape.security.PrivilegeManager.enablePrivilege(
-                    'UniversalBrowserRead'
+                    "UniversalBrowserRead",
                 );
                 imageData = context.getImageData(top_x, top_y, width, height);
             } catch (e) {
-                alert('Cannot access local image');
-                throw new Error('unable to access local image data: ' + e);
+                alert("Cannot access local image");
+                throw new Error("unable to access local image data: " + e);
                 return;
             }
         }
     } catch (e) {
-        alert('Cannot access image');
-        throw new Error('unable to access image data: ' + e);
+        alert("Cannot access image");
+        throw new Error("unable to access image data: " + e);
     }
 
     premultiplyAlpha(imageData);
@@ -676,7 +675,7 @@ function stackBlurCanvasRGBA(id, top_x, top_y, width, height, radius) {
     var stack = stackStart;
     for (i = 1; i < div; i++) {
         stack = stack.next = new BlurStack();
-        if (i == radiusPlus1) var stackEnd = stack;
+        if (i == radiusPlus1) { var stackEnd = stack; }
     }
     stack.next = stackStart;
     var stackIn = null;
@@ -877,11 +876,11 @@ function stackBlurCanvasRGBA(id, top_x, top_y, width, height, radius) {
 }
 
 function stackBlurCanvasRGB(id, top_x, top_y, width, height, radius) {
-    if (isNaN(radius) || radius < 1) return;
+    if (isNaN(radius) || radius < 1) { return; }
     radius |= 0;
 
     var canvas = document.getElementById(id);
-    var context = canvas.getContext('2d');
+    var context = canvas.getContext("2d");
     var imageData;
 
     try {
@@ -893,18 +892,18 @@ function stackBlurCanvasRGB(id, top_x, top_y, width, height, radius) {
             // imageData = context.getImageData( top_x, top_y, width, height );
             try {
                 netscape.security.PrivilegeManager.enablePrivilege(
-                    'UniversalBrowserRead'
+                    "UniversalBrowserRead",
                 );
                 imageData = context.getImageData(top_x, top_y, width, height);
             } catch (e) {
-                alert('Cannot access local image');
-                throw new Error('unable to access local image data: ' + e);
+                alert("Cannot access local image");
+                throw new Error("unable to access local image data: " + e);
                 return;
             }
         }
     } catch (e) {
-        alert('Cannot access image');
-        throw new Error('unable to access image data: ' + e);
+        alert("Cannot access image");
+        throw new Error("unable to access image data: " + e);
     }
 
     var pixels = imageData.data;
@@ -941,7 +940,7 @@ function stackBlurCanvasRGB(id, top_x, top_y, width, height, radius) {
     var stack = stackStart;
     for (i = 1; i < div; i++) {
         stack = stack.next = new BlurStack();
-        if (i == radiusPlus1) var stackEnd = stack;
+        if (i == radiusPlus1) { var stackEnd = stack; }
     }
     stack.next = stackStart;
     var stackIn = null;
@@ -1127,7 +1126,7 @@ function BlurStack() {
 var stackBlur = {
     image: stackBlurImage,
     canvasRGBA: stackBlurCanvasRGBA,
-    canvasRGB: stackBlurCanvasRGB
+    canvasRGB: stackBlurCanvasRGB,
 };
 
 export default stackBlur;
