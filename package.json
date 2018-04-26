@@ -1,6 +1,6 @@
 {
   "name": "msdrawboard",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "vue.js draw-board component base on raphael",
   "scripts": {
     "serve": "vue-cli-service serve --open",
