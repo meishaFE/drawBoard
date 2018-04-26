@@ -1,3 +1,4 @@
+/// <reference path="../../lib/main.d.ts" />
 import uuid from './uuid';
 import Raphael from 'raphael';
 import installExport from '../lib/raphael.export';
@@ -5,27 +6,23 @@ import canvg from '../lib/canvg';
 
 installExport(Raphael);
 
-export default class Draw {
+export default class Draw implements MsDraw {
     public drawBoard: RaphaelPaper;
     public current: RaphaelPath | RaphaelElement | null = null;
-    public drawTool: 'pen' | 'eraser' = 'pen';
+    public drawTool: DrawTools = 'pen';
     public paths: RaphaelSet;
-    public trashPaths: object[][] = [];
-    public history: Array<{
-        type: string;
-        paths: Array<RaphaelPath | RaphaelElement>;
-    }> = [];
+    public history: DrawHistorySet = [];
     public drawColor: string;
     public eraserOffset: { x: number; y: number } = {
         x: 0,
-        y: 0,
+        y: 0
     };
 
-    private _el: HTMLElement;
-    private _offset?: ClientRect | DOMRect;
-    private _isStart: boolean = false;
-    private id: string;
-    private _historyPointer: number = 0;
+    public _el: HTMLElement;
+    public _offset?: ClientRect | DOMRect;
+    public _isStart: boolean = false;
+    public id: string;
+    public _historyPointer: number = 0;
 
     constructor(el: HTMLElement, { color }: { color: string }) {
         if (!el) {
@@ -45,7 +42,7 @@ export default class Draw {
     }
 
     // 绘画
-    public startDraw(x: number, y: number, color: string) {
+    public startDraw(x: number, y: number, color?: string): void {
         const offset = this._getOffset();
         const { top, left } = offset;
         const drawTool = this.drawTool;
@@ -65,7 +62,7 @@ export default class Draw {
         }
     }
 
-    public drawing(x: number, y: number, color: string) {
+    public drawing(x: number, y: number): void {
         if (!this._isStart || !this._offset) {
             return;
         }
@@ -84,7 +81,7 @@ export default class Draw {
         }
     }
 
-    public endDraw(x: number, y: number, color: string) {
+    public endDraw(x: number, y: number): void {
         if (!this._isStart || !this._offset) {
             return;
         }
@@ -98,7 +95,11 @@ export default class Draw {
     }
 
     // 绘制轨迹
-    public createPath(x: number, y: number, color = this.drawColor) {
+    public createPath(
+        x: number,
+        y: number,
+        color: string = this.drawColor
+    ): RaphaelElement | RaphaelPath | void {
         const drawBoard = this.drawBoard;
 
         if (!drawBoard || !drawBoard.path) {
@@ -115,7 +116,7 @@ export default class Draw {
         return path;
     }
 
-    public path(path: string, color: string = this.drawColor) {
+    public path(path: string, color: string = this.drawColor): RaphaelElement {
         if (!path) {
             throw TypeError('path is required');
         }
@@ -127,20 +128,20 @@ export default class Draw {
         }
 
         return this.drawBoard.path(path).attr({
-            'stroke': color,
+            stroke: color,
             'stroke-width': 2,
             'stroke-linecap': 'round',
-            'stroke-linejoin': 'round',
+            'stroke-linejoin': 'round'
         });
     }
 
-    public endPath(x: number, y: number) {
-        const path = this.drawPath(x, y);
+    public endPath(x: number, y: number): RaphaelPath | RaphaelElement {
+        const path: RaphaelPath | RaphaelElement = this.drawPath(x, y);
         this.pushHistory('path', [path]);
         return path;
     }
 
-    public drawPath(x: number, y: number) {
+    public drawPath(x: number, y: number): RaphaelPath | RaphaelElement {
         const path = this.current;
 
         if (!path || !path.attr) {
@@ -152,7 +153,11 @@ export default class Draw {
     }
 
     // 绘制橡皮擦
-    public createEraser(x: number, y: number, color: string = '#ff0000') {
+    public createEraser(
+        x: number,
+        y: number,
+        color: string = '#ff0000'
+    ): RaphaelElement | void {
         const drawBoard = this.drawBoard;
 
         if (!drawBoard || !drawBoard.rect) {
@@ -166,26 +171,26 @@ export default class Draw {
         const eraser = drawBoard.rect(x, y, 0, 0);
 
         eraser.attr({
-            'r': 0,
-            'rx': 0,
-            'ry': 0,
-            'stroke': color,
-            'fill': color,
+            r: 0,
+            rx: 0,
+            ry: 0,
+            stroke: color,
+            fill: color,
             'fill-opacity': '0.15',
-            'stroke-opacity': '0.5',
+            'stroke-opacity': '0.5'
         });
 
         this.current = eraser;
 
         this.eraserOffset = {
             x: eraser.attr('x'),
-            y: eraser.attr('y'),
+            y: eraser.attr('y')
         };
 
         return eraser;
     }
 
-    public drawEraser(x: number, y: number) {
+    public drawEraser(x: number, y: number): RaphaelElement | void {
         const eraser = this.current;
 
         if (!eraser || !eraser.attr) {
@@ -219,7 +224,7 @@ export default class Draw {
         return eraser;
     }
 
-    public endEraser(x: number, y: number) {
+    public endEraser(x: number, y: number): void {
         const eraser = this.current;
 
         if (!eraser) {
@@ -228,17 +233,18 @@ export default class Draw {
 
         const trashPaths = this._clearSelectPaths(eraser.getBBox(), this.paths);
 
-        trashPaths &&
-            trashPaths.length &&
+        if (trashPaths && trashPaths.length) {
             this.pushHistory('eraser', trashPaths);
+        }
+
         eraser.remove();
     }
 
     public restore(
         str: string,
         color: string = this.drawColor,
-        canEdit = false,
-    ) {
+        canEdit: boolean = false
+    ): void {
         const path = this.path(str, color);
         if (!path) {
             return;
@@ -250,7 +256,7 @@ export default class Draw {
         }
     }
 
-    public clear() {
+    public clear(): void {
         this.drawBoard.clear();
         this.paths.clear();
         this.history = [];
@@ -258,61 +264,61 @@ export default class Draw {
     }
 
     // 获取 paths 的数据
-    public getPathData() {
+    public getPathData(): DrawPathSet {
         const _path = Array.from(this.paths);
-        let result: Array<{ color: string; path: string }> = [];
+        let result: DrawPathSet = [];
         if (!_path || !_path.length) {
             return result;
         }
 
-        result = _path.map((p) => ({
+        result = _path.map(p => ({
             color: p.attr('stroke'),
-            path: p.attr('path').toString(),
+            path: p.attr('path').toString()
         }));
 
         return result;
     }
 
-    public setColor(color: string) {
+    public setColor(color: string): string {
         this.drawColor = color;
         return color;
     }
 
-    public setDrawTool(tool: 'pen' | 'eraser') {
+    public setDrawTool(tool: DrawTools): DrawTools {
         this.drawTool = tool;
         return tool;
     }
 
     public pushHistory(
         type: 'path' | 'eraser',
-        paths: Array<RaphaelPath | RaphaelElement>,
-    ) {
+        paths: DrawRaphaelPaths
+    ): DrawHistorySet {
         this._historyPointer = this.history.push({ type, paths });
         return this.history;
     }
 
-    public backHistory() {
+    public backHistory(): DrawHistory {
         const pointer = --this._historyPointer;
         return this.history[pointer];
     }
 
-    public forwardHistory() {
+    public forwardHistory(): DrawHistory {
         const pointer = ++this._historyPointer;
         return this.history[pointer];
     }
 
-    public toSVG() {
+    public toSVG(): SVGAElement {
         return this.drawBoard.toSVG();
     }
 
-    public toImage() {
+    public toImage(): string {
         const canvas = document.createElement('canvas');
         canvg(canvas, this.toSVG());
         return canvas.toDataURL();
     }
 
     // 撤销上一步操作
-    public undo(history = 1) {
+    public undo(history = 1): void {
         if (!this.history.length) {
             return;
         }
@@ -327,29 +333,32 @@ export default class Draw {
         }
     }
 
-    public _undoPath(paths: Array<RaphaelPath | RaphaelElement>) {
-        paths.forEach((path) => {
+    public _undoPath(paths: DrawRaphaelPaths): void {
+        paths.forEach((path: RaphaelPath | RaphaelElement) => {
             path && path.hide && path.hide();
             this.paths.exclude(path);
         });
     }
 
-    public _undoEraser(paths: Array<RaphaelPath | RaphaelElement>) {
-        paths.forEach((path) => {
+    public _undoEraser(paths: DrawRaphaelPaths): void {
+        paths.forEach((path: RaphaelPath | RaphaelElement) => {
             path && path.show && path.show();
             this.paths.push(path);
         });
     }
 
     // 清除橡皮擦选中的轨迹
-    public _clearSelectPaths(eraserBox: BoundingBox, paths: RaphaelSet) {
+    public _clearSelectPaths(
+        eraserBox: BoundingBox,
+        paths: RaphaelSet
+    ): DrawRaphaelPaths | void {
         if (!paths || !paths.length) {
             return;
         }
         const _paths = Array.from(paths);
-        const trashs: Array<RaphaelPath | RaphaelElement> = [];
+        const trashs: DrawRaphaelPaths = [];
 
-        _paths.forEach((path) => {
+        _paths.forEach(path => {
             if (!path) {
                 return;
             }
@@ -364,7 +373,7 @@ export default class Draw {
     }
 
     // 判断 A 区域和 B 区域是否有交集
-    public _isAIncludeB(boxA: BoundingBox, boxB: BoundingBox) {
+    public _isAIncludeB(boxA: BoundingBox, boxB: BoundingBox): boolean {
         if (!boxA || !boxB) {
             return false;
         }
@@ -372,14 +381,14 @@ export default class Draw {
             boxA.x,
             boxA.x + boxA.width,
             boxB.x,
-            boxB.x + boxB.width,
+            boxB.x + boxB.width
         ].sort((a, b) => b - a);
 
         const [maxY, , , minY] = [
             boxA.y,
             boxA.y + boxA.height,
             boxB.y,
-            boxB.y + boxB.height,
+            boxB.y + boxB.height
         ].sort((a, b) => b - a);
 
         const width = boxA.width + boxB.width;
@@ -387,7 +396,6 @@ export default class Draw {
 
         return maxX - minX <= width && maxY - minY <= height;
     }
-
     public _getOffset(): ClientRect | DOMRect {
         const el = this._el;
         return el.getBoundingClientRect();

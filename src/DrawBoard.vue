@@ -164,374 +164,196 @@
     </div>
 </template>
 
-<script>
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+<script lang="ts">
+/// <reference path="../lib/main.d.ts" />
 
-import Draw from '@/utils/draw.ts';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+import Draw from '@/utils/draw';
 import $type from '@/utils/type';
 
-let drawBoard;
+let drawBoard: Draw;
 
-const handleMouseUp = (event) => {
+const handleMouseUp = (event: MouseEvent) => {
     const { pageX: x, pageY: y } = event;
     drawBoard.endDraw(x, y);
     window.removeEventListener('mouseup', handleMouseUp);
 };
 
-export default {
-    name: 'MsDrawBoard',
-    props: {
-        background: {
-            type: String,
-            default: '#fff',
-        },
-        restoreDisablePath: {
-            type: Array,
-            default() {
-                return [];
-            },
-        },
-        restorePath: {
-            type: Array,
-            default() {
-                return [];
-            },
-        },
-        defaultColor: {
-            type: String,
-            default() {
-                return '#21242C';
-            },
-        },
-        readonly: {
-            type: Boolean,
-            default() {
-                return false;
-            },
-        },
-        ifRunClear: {
-            type: Boolean,
-            default() {
-                return false;
-            },
-        },
-        isBtnLoading: {
-            type: Boolean,
-            default() {
-                return false;
-            },
-        },
-        isBtnDisabled: {
-            type: Boolean,
-            default() {
-                return false;
-            },
-        },
-        penColors: {
-            type: Array,
-            default() {
-                return [
-                    '#01A995',
-                    '#E84D39',
-                    '#74CF70',
-                    '#FFBE26',
-                    '#CA337C',
-                    '#7853AB',
-                    '#11ACCD',
-                    '#20A0FF',
-                    '#21242C',
-                ];
-            },
-        },
-    },
-    data() {
-        return {
-            currentPath: null,
-            isShowAllTool: false,
-            currentDrawTool: 'pen',
-            currentColor: '#21242C',
-            id: 'ms-draw-board',
-        };
-    },
-    mounted() {
+@Component
+export default class MsDrawBoard extends Vue {
+    // props
+    @Prop({ default: 'fff' })
+    background: string;
+
+    @Prop({ default: () => [] })
+    restoreDisablePath: DrawPath[];
+
+    @Prop({ default: () => [] })
+    restorePath: DrawPath[];
+
+    @Prop({ default: '#21242C' })
+    defaultColor: string;
+
+    @Prop({ default: false })
+    readonly: boolean;
+
+    @Prop({ default: false })
+    ifRunClear: boolean;
+
+    @Prop({ default: false })
+    isBtnLoading: boolean;
+
+    @Prop({ default: false })
+    isBtnDisabled: boolean;
+
+    @Prop({
+        default: () => [
+            '#01A995',
+            '#E84D39',
+            '#74CF70',
+            '#FFBE26',
+            '#CA337C',
+            '#7853AB',
+            '#11ACCD',
+            '#20A0FF',
+            '#21242C'
+        ]
+    })
+    penColors: string[];
+
+    // data
+    isShowAllTool: boolean = false;
+    currentDrawTool: 'pen' | 'eraser' = 'pen';
+    currentColor: string = '#21242C';
+    id: string = 'ms-draw-board';
+
+    // mounted
+    mounted(): void {
         this.currentColor = this.defaultColor;
         setTimeout(() => {
             this.init();
         });
-    },
-    methods: {
-        init() {
-            const el =
-                this.$refs.drawBoardContainer ||
-                document.getElementById(this.id);
-            const opts = { color: this.currentColor };
-            drawBoard = new Draw(el, opts);
-            this.restoreAllPath();
-            this.$emit('init', drawBoard);
-        },
-        restoreAllPath() {
-            drawBoard.clear();
-            const restorePath = this.restorePath;
-            const restoreDisablePath = this.restoreDisablePath.map((path) => ({
+    }
+
+    init(): void {
+        const el = document.getElementById(this.id);
+
+        if (!el) {
+            throw TypeError('el is required and must be HTMLElement');
+        }
+
+        const opts = { color: this.currentColor };
+        drawBoard = new Draw(el, opts);
+        this.restoreAllPath();
+        this.$emit('init', drawBoard);
+    }
+
+    restoreAllPath(): void {
+        drawBoard.clear();
+        const restorePath = this.restorePath;
+        const restoreDisablePath = this.restoreDisablePath.map(
+            (path: { color: string; path: string }) => ({
                 ...path,
-                editDisabled: true,
+                editDisabled: true
+            })
+        );
+
+        if ($type.isArray(restorePath) && restorePath.length) {
+            this.restore(restorePath);
+        }
+
+        if ($type.isArray(restoreDisablePath) && restoreDisablePath.length) {
+            this.restore(restoreDisablePath);
+        }
+    }
+
+    restore(
+        list: Array<{ color: string; path: string; editDisabled?: boolean }>
+    ): void {
+        list.forEach(item => {
+            drawBoard.restore(item.path, item.color, !item.editDisabled);
+        });
+    }
+
+    startDraw(event: MouseEvent): void {
+        if (this.readonly) return;
+
+        const { pageX: x, pageY: y } = event;
+        setTimeout(() => {
+            drawBoard.startDraw(x, y);
+        });
+        window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    painting(event: MouseEvent): void {
+        if (this.readonly) return;
+
+        const { pageX: x, pageY: y } = event;
+        setTimeout(() => {
+            drawBoard.drawing(x, y);
+            this.$emit('change');
+        });
+    }
+
+    usePen(): void {
+        this.currentDrawTool = drawBoard.setDrawTool('pen');
+    }
+
+    useEraser(): void {
+        this.currentDrawTool = drawBoard.setDrawTool('eraser');
+    }
+
+    selectColor(color: string): void {
+        this.usePen();
+        this.currentColor = drawBoard.setColor(color);
+    }
+
+    toggleShowAllTool(): void {
+        this.isShowAllTool = !this.isShowAllTool;
+    }
+
+    undo(): void {
+        drawBoard.undo();
+        this.$emit('undo');
+    }
+
+    save(): void {
+        this.$emit('update:isBtnLoading', true);
+        const image = drawBoard.toImage();
+        const paths = drawBoard.getPathData();
+        this.$emit('save', image, paths);
+    }
+
+    @Watch('restorePath')
+    onRestorePathChanged(val: DrawPathSet, oldVal: DrawPathSet) {
+        if (!drawBoard) return;
+
+        if (val && val !== oldVal && $type.isArray(val)) {
+            this.restore(val);
+        }
+    }
+
+    @Watch('restoreDisablePath')
+    onRestoreDisablePathChanged(val: DrawPathSet, oldVal: DrawPathSet) {
+        if (!drawBoard) return;
+
+        if (val && val !== oldVal && $type.isArray(val)) {
+            const restoreDisablePath = val.map(path => ({
+                ...path,
+                editDisabled: true
             }));
-            if (
-                restorePath &&
-                $type.isArray(restorePath) &&
-                restorePath.length
-            ) {
-                this.restore(restorePath);
-            }
-            if (
-                restoreDisablePath &&
-                $type.isArray(restoreDisablePath) &&
-                restoreDisablePath.length
-            ) {
-                this.restore(restoreDisablePath);
-            }
-        },
-        restore(data) {
-            data.forEach((data) => {
-                drawBoard.restore(data.path, data.color, !data.editDisabled);
-            });
-        },
-        startDraw(event) {
-            if (!this.readonly) {
-                const { pageX: x, pageY: y } = event;
-                setTimeout(() => {
-                    drawBoard.startDraw(x, y);
-                });
-                window.addEventListener('mouseup', handleMouseUp);
-            }
-        },
-        painting(event) {
-            if (!this.readonly) {
-                const { pageX: x, pageY: y } = event;
-                setTimeout(() => {
-                    drawBoard.drawing(x, y);
-                    this.$emit('change');
-                });
-            }
-        },
-        usePen() {
-            this.currentDrawTool = drawBoard.setDrawTool('pen');
-        },
-        useEraser() {
-            this.currentDrawTool = drawBoard.setDrawTool('eraser');
-        },
-        selectColor(color) {
-            this.usePen();
-            this.currentColor = drawBoard.setColor(color);
-        },
-        toggleShowAllTool() {
-            this.isShowAllTool = !this.isShowAllTool;
-        },
-        undo() {
-            drawBoard.undo();
-            this.$emit('undo');
-        },
-        save() {
-            this.$emit('update:isBtnLoading', true);
-            const image = drawBoard.toImage();
-            const paths = drawBoard.getPathData();
-            this.$emit('save', image, paths);
-        },
-    },
-    watch: {
-        restorePath(val, oldVal) {
-            if (!drawBoard) {
-                return;
-            }
-            if (val && val !== oldVal && $type.isArray(val)) {
-                this.restore(val);
-            }
-        },
-        restoreDisablePath(val, oldVal) {
-            if (!drawBoard) {
-                return;
-            }
-            if (val && val !== oldVal && $type.isArray(val)) {
-                const restoreDisablePath = val.map((path) => ({
-                    ...path,
-                    editDisabled: true,
-                }));
-                this.restore(restoreDisablePath);
-            }
-        },
-        ifRunClear(val) {
-            if (val) {
-                drawBoard.clear();
-                this.$emit('clear');
-            }
-        },
-    },
-};
+            this.restore(restoreDisablePath);
+        }
+    }
+
+    @Watch('ifRunClear')
+    onIfRunClearChanged(val: boolean) {
+        if (val) {
+            drawBoard.clear();
+            this.$emit('clear');
+        }
+    }
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,28 +1,22 @@
 <template>
   <div id="app">
-      <DrawBoard @save="handleSave"></DrawBoard>
+      <MsDrawBoard @save="handleSave"></MsDrawBoard>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import DrawBoard from './DrawBoard.vue';
+import MsDrawBoard from './DrawBoard.vue';
 
 @Component({
-    data() {
-        return {
-            isInitDrawBoard: true,
-        };
-    },
-    components: {
-        DrawBoard,
-    },
-    methods: {
-        handleSave(): void  {
-        },
-    },
+    components: { MsDrawBoard }
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+    isInitDrawBoard: boolean = true;
+
+    handleSave(): void {
+    }
+}
 </script>
 
 <style>
