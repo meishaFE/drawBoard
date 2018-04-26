@@ -1,7 +1,16 @@
-<title>ms-draw-board demo</title>
+<title>msDrawBoard demo</title>
 <script src="https://unpkg.com/vue"></script>
-<script src="./ms-draw-board.js"></script>
+<script src="./msDrawBoard.umd.js"></script>
+<!-- <link rel="stylesheet" href="./msDrawBoard.css"> -->
 
+<div id="app">
+  <demo></demo>
+</div>
 
-<draw-board></draw-board>
-
+<script>
+new Vue({
+  components: {
+    demo: msDrawBoard
+  }
+}).$mount('#app')
+</script>
