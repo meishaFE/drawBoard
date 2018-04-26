@@ -1,6 +1,6 @@
 {
   "name": "msdrawboard",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "vue.js draw-board component base on raphael",
   "scripts": {
     "serve": "vue-cli-service serve --open",
@@ -25,7 +25,7 @@
     "lib"
   ],
   "bugs": {
-      "url": "https://github.com/meishaFE/drawBoard/issues"
+    "url": "https://github.com/meishaFE/drawBoard/issues"
   },
   "devDependencies": {
     "@types/jest": "^22.0.1",
