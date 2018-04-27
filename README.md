@@ -32,3 +32,6 @@ new Vue({
 <msDrawBoard></msDrawBoard>
 ```
 
+[live demo](https://jsfiddle.net/JxJayden/4jcp9gvp/2/?utm_source=website&utm_medium=embed&utm_campaign=4jcp9gvp)
+
+[API](./API.md)

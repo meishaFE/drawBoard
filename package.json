@@ -11,6 +11,7 @@
   },
   "types": "./lib/main.d.ts",
   "main": "dist/msDrawBoard.umd.min.js",
+  "unpkg": "dist/msDrawBoard.umd.min.js",
   "license": "MIT",
   "author": "Jayden <jxdjayden@gmail.com>",
   "dependencies": {
