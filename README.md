@@ -1,5 +1,7 @@
 # MsDrawBoard
 
+[![npm](https://img.shields.io/npm/l/msdrawboard.svg)](https://www.npmjs.com/package/msdrawboard) ![TypeScript](https://img.shields.io/badge/TypeScript->=2.8.3-blue.svg?style=flat)
+
 > vue.js draw-board component base on raphael
 
 ## usage
