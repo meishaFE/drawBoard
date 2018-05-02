@@ -2,22 +2,29 @@
 
 [![npm](https://img.shields.io/npm/l/msdrawboard.svg)](https://www.npmjs.com/package/msdrawboard) ![TypeScript](https://img.shields.io/badge/TypeScript->=2.8.3-blue.svg?style=flat)
 
-> vue.js draw-board component base on raphael
+## Introduction
 
-## usage
+vue.js draw-board component base on raphael
 
-1. 安装依赖
+## Installation
 
+### CDN
+
+```html
+<script src="https://unpkg.com/msdrawboard@1.0.0/dist/msDrawBoard.umd.min.js"></script>
+```
+
+### NPM
 ```bash
+# latest stable
+# use yarn
 yarn add msdrawboard
-# or
+# or use npm
 npm install msdrawboard
 ```
 
-2. 引入
-
+## Getting Started
 ```js
-// 全局引入
 import Vue from 'vue'
 import msDrawBoard from 'msdrawboard'
 
@@ -26,7 +33,6 @@ new Vue({
     msDrawBoard
   }
 }).$mount('#app')
-
 ```
 
 ```html
@@ -34,6 +40,12 @@ new Vue({
 <msDrawBoard></msDrawBoard>
 ```
 
-[live demo](https://jsfiddle.net/JxJayden/4jcp9gvp/2/?utm_source=website&utm_medium=embed&utm_campaign=4jcp9gvp)
+## Documentation
 
-[API](./API.md)
+[live example](https://jsfiddle.net/JxJayden/4jcp9gvp/6/?utm_source=website&utm_medium=embed&utm_campaign=4jcp9gvp)
+
+[English](./docs/API.md) | [中文](./docs/API-zh.md)
+
+## License
+
+[MIT](http://opensource.org/licenses/MIT)
