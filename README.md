@@ -42,7 +42,7 @@ new Vue({
 
 ## Documentation
 
-[live example](https://jsfiddle.net/JxJayden/4jcp9gvp/6/?utm_source=website&utm_medium=embed&utm_campaign=4jcp9gvp)
+[Live Example](https://jsfiddle.net/JxJayden/4jcp9gvp/6/?utm_source=website&utm_medium=embed&utm_campaign=4jcp9gvp)
 
 [English](./docs/API.md) | [中文](./docs/API-zh.md)
 

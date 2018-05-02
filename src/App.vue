@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
-      <MsDrawBoard @save="handleSave"></MsDrawBoard>
-  </div>
+    <div id="app">
+        <MsDrawBoard @save="handleSave"></MsDrawBoard>
+    </div>
 </template>
 
 <script lang="ts">
@@ -14,16 +14,17 @@ import MsDrawBoard from './DrawBoard.vue';
 export default class App extends Vue {
     isInitDrawBoard: boolean = true;
 
-    handleSave(): void {
-    }
+    handleSave(): void {}
 }
 </script>
 
 <style>
 #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
+
+    text-align: center;
+
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
 }
 </style>
